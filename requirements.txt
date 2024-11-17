@@ -27,6 +27,7 @@ expat=2.6.3=h313beb8_0
 flask=3.0.3=py312hca03da5_0
 fmt=9.1.0=h48ca7d4_1
 frozendict=2.4.2=py312hca03da5_0
+gunicorn=22.0.0=py312hca03da5_0
 icu=73.1=h313beb8_0
 idna=3.7=py312hca03da5_0
 itsdangerous=2.2.0=py312hca03da5_0
