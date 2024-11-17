@@ -22,3 +22,9 @@ with sqlite3.connect("./db/database.db") as con:
         con.commit()
         # drop data into database
         df.to_sql(table, con, schema=None, if_exists='replace', index=False)
+
+# init user database
+with sqlite3.connect("./db/database.db") as con:
+    cur = con.cursor()
+    cur.execute("CREATE TABLE users (username TEXT, password TEXT)")
+    con.commit()
