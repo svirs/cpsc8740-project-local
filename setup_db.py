@@ -26,5 +26,6 @@ with sqlite3.connect("./db/database.db") as con:
 # init user database
 with sqlite3.connect("./db/database.db") as con:
     cur = con.cursor()
-    cur.execute("CREATE TABLE users (username TEXT, password TEXT)")
+    cur.execute(f"DROP TABLE IF EXISTS users")
+    cur.execute("CREATE TABLE users (username TEXT PRIMARY KEY, password TEXT, onboarded BOOLEAN)")
     con.commit()

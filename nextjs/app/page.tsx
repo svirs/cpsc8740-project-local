@@ -1,6 +1,30 @@
+"use client";
+
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function Home() {
+  const router = useRouter();
+  useEffect(() => {
+    fetch("/api/home").then((res) => {
+      switch (res.status) {
+        case 200:
+          // get data in front of user
+          console.log(res.json());
+          break;
+        case 403:
+          router.push("/onboarding");
+          break;
+        case 404:
+          router.push("/login?failed=unauthorized");
+          break;
+        default:
+          router.push("/error?code=" + res.status);
+          break;
+      }
+    });
+  }, [router]);
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">

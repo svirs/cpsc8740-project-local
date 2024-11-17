@@ -5,6 +5,7 @@ from flask import Flask, request, redirect, make_response, session
 app = Flask(__name__)
 app.secret_key = b'Y\xf1Xz\x00\xad|eQ\x80t \xca\x1a\x10K' # for session
 
+# http://localhost:3000/api/user
 @app.route("/user", methods=["GET"])
 def user_get():
     # validate user exists
@@ -22,6 +23,7 @@ def user_get():
     
     return redirect('http://localhost:3000')
 
+# http://localhost:3000/api/user
 @app.route("/user", methods=["POST"])
 def user_post():
     # make user exists
@@ -43,3 +45,24 @@ def user_post():
     response = make_response(redirect('http://localhost:3000'))
     response.set_cookie('username', username, domain="http://localhost:3000")
     return response
+
+# http://localhost:3000/api/home
+@app.route("/home", methods=["GET"])
+def data_get():
+    # get data
+    username = session.get("name")
+    if not username:
+        return make_response("user not logged in", 401)
+    with sqlite3.connect('./db/database.db') as cnx:
+        cursor = cnx.cursor()
+        cursor.execute('SELECT * FROM users WHERE username = ?', (username,))
+        data = cursor.fetchone()
+        if not data:
+            return make_response("user not found", 404)
+        _, _, onboarded = data
+        if not onboarded:
+            return make_response("user not onboarded", 403)
+        # show reccomendations
+        return {"data": "some-data"}
+    
+    return {"data": "out of loop"}
