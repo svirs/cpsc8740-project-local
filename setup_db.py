@@ -34,5 +34,12 @@ with sqlite3.connect("./db/database.db") as con:
 with sqlite3.connect("./db/database.db") as con:
     cur = con.cursor()
     cur.execute(f"DROP TABLE IF EXISTS recommendations")
-    cur.execute("CREATE TABLE IF NOT EXISTS recommendations (userId INT, movieId INT, rating REAL, timestamp INT)")
+    cur.execute("CREATE TABLE IF NOT EXISTS recommendations (userId INT, movieId INT, rating REAL, timestamp INT, UNIQUE(userId, movieId) ON CONFLICT REPLACE)")
+    con.commit()
+
+# init new_ratings db
+with sqlite3.connect("./db/database.db") as con:
+    cur = con.cursor()
+    cur.execute(f"DROP TABLE IF EXISTS new_ratings")
+    cur.execute("CREATE TABLE IF NOT EXISTS new_ratings (userId INT, movieId INT, rating REAL, timestamp INT)")
     con.commit()

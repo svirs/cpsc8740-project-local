@@ -3,6 +3,8 @@ import time
 import bcrypt
 from flask import Flask, request, redirect, make_response, session
 
+import job
+
 app = Flask(__name__)
 app.secret_key = b"Y\xf1Xz\x00\xad|eQ\x80t \xca\x1a\x10K"  # for session
 
@@ -70,19 +72,28 @@ def data_get():
         data = cursor.fetchone()
         if not data:
             return make_response("user not found", 404)
-        cursor.execute(
-            "SELECT count(*) FROM recommendations WHERE userId = ?", (user,)
-        )
+        cursor.execute("SELECT count(*) FROM new_ratings WHERE userId = ?", (user,))
+        data = cursor.fetchone()
+        if not data or data[0] < 5:
+            return make_response("missing ratings for recommendations", 403)
+        cursor.execute("SELECT count(*) FROM recommendations WHERE userId = ?", (user,))
         data = cursor.fetchone()
         if not data:
-            return make_response("user not found", 404)
-        onboarded = data[0] >= 5
-        if not onboarded:
-            return make_response("user not onboarded", 403)
+            return make_response("recommendations not ready", 204)
         # show reccomendations
-        return {"data": "some-data"}
-
-    return {"data": "out of loop"}
+        cursor.execute(
+            """
+            SELECT m.* FROM recommendations r
+            JOIN movies m ON r.movieId = m.movieId
+            WHERE r.userId = ?
+            """,
+            (user,),
+        )
+        data = cursor.fetchall()
+        return [
+            {"id": id, "title": title, "genres": genres.split("|")}
+            for id, title, genres in data
+        ]
 
 
 # http://localhost:3000/api/onboarding
@@ -98,9 +109,7 @@ def onboarding_get():
         data = cursor.fetchone()
         if not data:
             return make_response("user not found", 404)
-        cursor.execute(
-            "SELECT count(*) FROM recommendations WHERE userId = ?", (user,)
-        )
+        cursor.execute("SELECT count(*) FROM new_ratings WHERE userId = ?", (user,))
         data = cursor.fetchone()
         if not data:
             return make_response("user not found", 404)
@@ -126,7 +135,7 @@ def movie_get():
         cursor.execute(
             """
             WITH user_ratings AS (
-                SELECT movieId from recommendations WHERE userId = ?
+                SELECT movieId from new_ratings WHERE userId = ?
             )
             SELECT m.* FROM movies m
             LEFT JOIN user_ratings ur ON m.movieId = ur.movieId
@@ -157,21 +166,29 @@ def rating_post():
     if not movie_id:
         return make_response("movie id not provided", 400)
     rating = request.json["rating"]
-    if not rating or not 0 <= rating <= 5:
+    if rating is None or not 0 <= rating <= 5:
         return make_response("invalid rating", 400)
     with sqlite3.connect("./db/database.db") as cnx:
         cursor = cnx.cursor()
-        # find if recommendation exists
+        # find if rating exists
         cursor.execute(
-            "SELECT * FROM recommendations WHERE userId = ? AND movieId = ?",
+            "SELECT * FROM new_ratings WHERE userId = ? AND movieId = ?",
             (user, movie_id),
         )
         data = cursor.fetchone()
         if data:
             return make_response("rating already exists", 403)
         cursor.execute(
-            "INSERT INTO recommendations (userId, movieId, rating, timestamp) VALUES (?, ?, ?, ?)",
+            "INSERT INTO new_ratings (userId, movieId, rating, timestamp) VALUES (?, ?, ?, ?)",
             (user, movie_id, rating, int(time.time())),
         )
         cnx.commit()
         return make_response("rating added", 200)
+
+# @app.route("/logout", methods=["GET"])
+
+@app.route("/job", methods=["GET"])
+def job_get():
+    # run job
+    job.run()
+    return make_response("job done", 200)

@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import MovieCard from "../components/moviesViewer";
 
 export default function Onboarding() {
   const router = useRouter();
@@ -14,7 +15,7 @@ export default function Onboarding() {
   >([]);
   const [currentMovieIndex, setCurrentMovieIndex] = useState(0);
   const [rating, setRating] = useState<number | null>(null);
-  console.log(rating);
+  const [redirecting, setRedirecting] = useState(false);
   useEffect(() => {
     fetch("/api/onboarding")
       .then(async (res) => {
@@ -28,12 +29,15 @@ export default function Onboarding() {
           case 403:
             // onboarding is done
             router.push("/");
+            setRedirecting(true);
             break;
           case 404:
             router.push("/login?failed=Unauthorized");
+            setRedirecting(true);
             break;
           default:
             router.push("/error?code=" + res.status);
+            setRedirecting(true);
             break;
         }
         if (res.status === 200) {
@@ -43,7 +47,10 @@ export default function Onboarding() {
         }
       })
       .then((data) => {
-        setTodos(5 - data.ratings);
+        if (!data) return;
+        if (typeof data?.ratings === "number") {
+          setTodos(5 - data.ratings);
+        }
         setLoading(false);
       });
   }, [router]);
@@ -80,6 +87,9 @@ export default function Onboarding() {
               setRating(null);
               // remove rated movie from list
               setMovies(movies.filter((_, i) => i !== currentMovieIndex));
+              setCurrentMovieIndex(
+                currentMovieIndex === movies.length - 1 ? 0 : currentMovieIndex
+              );
             }
           } else if (res.status === 403) {
             // rating exists already
@@ -100,7 +110,7 @@ export default function Onboarding() {
     [todos, rating, currentMovieIndex, movies, search]
   );
 
-  if (todos === 0) {
+  if (todos === 0 && !redirecting) {
     router.push("/");
   }
 
@@ -117,99 +127,15 @@ export default function Onboarding() {
         <p className="text-center text-sm text-gray-600 dark:text-gray-400">
           Rate some movies to get started
         </p>
-        {movies.length > 0 && (
-          // component to scroll horizontally between the films
-          <div className="flex items-center justify-center gap-4">
-            <button
-              className="btn btn-outline btn-circle"
-              onClick={() => {
-                setCurrentMovieIndex(
-                  currentMovieIndex === 0
-                    ? movies.length - 1
-                    : currentMovieIndex - 1
-                );
-                setRating(null);
-              }}
-            >
-              {"<"}
-            </button>
-            <div className="flex flex-col items-center gap-4 w-[50vw] h-[100px] justify-between">
-              <h3 className="text-xl font-bold text-center line-clamp-2 text-ellipsis">
-                {movies[currentMovieIndex].title}
-              </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {movies[currentMovieIndex].genres.join(", ")}
-              </p>
-            </div>
-            <button
-              className="btn btn-outline btn-circle"
-              onClick={() => {
-                setCurrentMovieIndex(
-                  currentMovieIndex === movies.length - 1
-                    ? 0
-                    : currentMovieIndex + 1
-                );
-                setRating(null);
-              }}
-            >
-              {">"}
-            </button>
-          </div>
-        )}
-
-        <form className="space-y-4" action="/api/movies" method="GET">
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text dark:text-white">
-                Search for a movie
-              </span>
-            </label>
-            <input
-              type="text"
-              name="movie"
-              placeholder="Search for a movie"
-              className="input input-bordered w-full"
-              onInput={(e) => setSearch(e.currentTarget.value)}
-            />
-          </div>
-          {movies.length > 0 && (
-            <>
-              <div className="form-control">
-                <label className="label">
-                  <span className="label-text dark:text-white">Rating</span>
-                </label>
-                <input
-                  type="number"
-                  name="rating"
-                  placeholder="Rating"
-                  step={0.5}
-                  min={0}
-                  max={5}
-                  value={rating ?? ""}
-                  onChange={(e) =>
-                    setRating(
-                      e.currentTarget.value === ""
-                        ? null
-                        : Number(e.currentTarget.value)
-                    )
-                  }
-                  className="input input-bordered w-full"
-                />
-              </div>
-              <div className="form-control mt-6">
-                <button
-                  onClick={handleRating}
-                  disabled={
-                    rating === null || rating < 0 || rating > 5 || isNaN(rating)
-                  }
-                  className="btn btn-primary w-full"
-                >
-                  Rate Movie
-                </button>
-              </div>
-            </>
-          )}
-        </form>
+        <MovieCard
+          currentMovieIndex={currentMovieIndex}
+          setCurrentMovieIndex={setCurrentMovieIndex}
+          movies={movies}
+          setSearch={setSearch}
+          rating={rating}
+          setRating={setRating}
+          handleRating={handleRating}
+        />
         <p className="text-center text-sm text-gray-600 dark:text-gray-400">
           {todos} movies left to rate
         </p>
