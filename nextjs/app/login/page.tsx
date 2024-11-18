@@ -8,13 +8,12 @@ export default async function LoginPage({
   };
 }) {
   const { failed } = await searchParams;
+
   return (
     <>
       <h2 className="text-2xl font-bold text-center">Log In</h2>
       {failed && (
-        <p className="text-center text-red-500">
-          Invalid credentials. Please try again.
-        </p>
+        <p className="text-center text-red-500">{`${failed}. Please try again.`}</p>
       )}
       <form
         className="space-y-4"

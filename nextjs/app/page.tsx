@@ -2,12 +2,17 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export default function Home() {
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     fetch("/api/home").then((res) => {
+      setLoading(false);
+      console.log(res.status);
+      return
       switch (res.status) {
         case 200:
           // get data in front of user
@@ -17,7 +22,7 @@ export default function Home() {
           router.push("/onboarding");
           break;
         case 404:
-          router.push("/login?failed=unauthorized");
+          router.push("/login?failed=Unauthorized");
           break;
         default:
           router.push("/error?code=" + res.status);
@@ -25,6 +30,11 @@ export default function Home() {
       }
     });
   }, [router]);
+
+  if (loading) {
+    return <span className="loading loading-spinner loading-lg"></span>;
+  }
+
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">

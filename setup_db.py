@@ -27,5 +27,12 @@ with sqlite3.connect("./db/database.db") as con:
 with sqlite3.connect("./db/database.db") as con:
     cur = con.cursor()
     cur.execute(f"DROP TABLE IF EXISTS users")
-    cur.execute("CREATE TABLE users (username TEXT PRIMARY KEY, password TEXT, onboarded BOOLEAN)")
+    cur.execute("CREATE TABLE users (userId INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT UNIQUE, password TEXT)")
+    con.commit()
+
+# init recs database
+with sqlite3.connect("./db/database.db") as con:
+    cur = con.cursor()
+    cur.execute(f"DROP TABLE IF EXISTS recommendations")
+    cur.execute("CREATE TABLE IF NOT EXISTS recommendations (userId INT, movieId INT, rating REAL, timestamp INT)")
     con.commit()
