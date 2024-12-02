@@ -1,14 +1,12 @@
-import Link from "next/link";
-import React from "react";
+"use client";
 
-export default async function Signup({
-  searchParams,
-}: {
-  searchParams: {
-    [key: string]: string | string[] | undefined;
-  };
-}) {
-  const { failed } = await searchParams;
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+
+function SignupPage() {
+  const searchParams = useSearchParams();
+  const failed = searchParams.get("failed");
 
   return (
     <>
@@ -58,3 +56,10 @@ export default async function Signup({
     </>
   );
 }
+const Signup = () => (
+  <Suspense>
+    <SignupPage />
+  </Suspense>
+);
+
+export default Signup;

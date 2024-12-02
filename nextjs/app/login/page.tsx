@@ -1,13 +1,12 @@
-import Link from "next/link";
+"use client";
 
-export default async function LoginPage({
-  searchParams,
-}: {
-  searchParams: {
-    [key: string]: string | string[] | undefined;
-  };
-}) {
-  const { failed } = await searchParams;
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+
+function LoginPage() {
+  const searchParams = useSearchParams();
+  const failed = searchParams.get("failed");
 
   return (
     <>
@@ -15,11 +14,7 @@ export default async function LoginPage({
       {failed && (
         <p className="text-center text-red-500">{`${failed}. Please try again.`}</p>
       )}
-      <form
-        className="space-y-4"
-        action="http://localhost:3000/api/user"
-        method="GET"
-      >
+      <form className="space-y-4" action="/api/user" method="GET">
         <div className="form-control">
           <label className="label">
             <span className="label-text dark:text-white">Username</span>
@@ -55,3 +50,11 @@ export default async function LoginPage({
     </>
   );
 }
+
+const Login = () => (
+  <Suspense>
+    <LoginPage />
+  </Suspense>
+);
+
+export default Login;
