@@ -20,14 +20,14 @@ def user_get():
         cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
         user = cursor.fetchone()
         if not user:
-            return redirect("http://localhost:3000/login?failed=Unauthorized")
+            return redirect("/login?failed=Unauthorized")
         id, _, hashed_password = user
         if bcrypt.checkpw(password.encode("utf-8"), hashed_password):
             session["id"] = id
         else:
-            return redirect("http://localhost:3000/login?failed=Unauthorized")
+            return redirect("/login?failed=Unauthorized")
 
-    return redirect("http://localhost:3000")
+    return redirect("/")
 
 
 # http://localhost:3000/api/user
@@ -37,7 +37,7 @@ def user_post():
     username = request.form.get("username")
     password = request.form.get("password")
     if len(password) < 4:
-        return redirect("http://localhost:3000/signup?failed=true")
+        return redirect("/signup?failed=true")
     hashed_password = bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt())
     with sqlite3.connect("./db/database.db") as cnx:
         cursor = cnx.cursor()
@@ -45,7 +45,7 @@ def user_post():
         cursor.execute("SELECT * FROM users WHERE username = ?", (username,))
         user = cursor.fetchone()
         if user:
-            return redirect("http://localhost:3000/signup?failed=true")
+            return redirect("/signup?failed=true")
         cursor.execute(
             "INSERT INTO users (username, password) VALUES (?, ?)",
             (username, hashed_password),
@@ -55,7 +55,7 @@ def user_post():
         data = cursor.fetchone()
         session["id"] = data[0]
 
-    response = make_response(redirect("http://localhost:3000"))
+    response = make_response(redirect("/"))
     return response
 
 
