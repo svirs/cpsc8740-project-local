@@ -1,1 +1,1 @@
-gunicorn -w 4 app:app
+gunicorn -w 4 flask_app:app
