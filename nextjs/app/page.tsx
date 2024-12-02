@@ -19,7 +19,6 @@ export default function Home() {
 
   useEffect(() => {
     fetch("/api/home").then((res) => {
-      setLoading(false);
       switch (res.status) {
         case 200:
           // get data in front of user
@@ -43,6 +42,7 @@ export default function Home() {
           router.push("/error?code=" + res.status);
           break;
       }
+      setLoading(false);
     });
   }, [router]);
 
