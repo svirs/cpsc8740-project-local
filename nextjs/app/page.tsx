@@ -30,6 +30,9 @@ export default function Home() {
         case 204:
           // no data
           break;
+        case 401:
+          router.push("/signup");
+          break;
         case 403:
           router.push("/onboarding");
           break;
