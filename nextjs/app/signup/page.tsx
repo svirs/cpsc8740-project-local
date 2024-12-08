@@ -18,7 +18,7 @@ function SignupPage() {
       )}
       <form
         className="space-y-4"
-        action="http://127.0.0.1:8000/user"
+        action="/api/user"
         method="post"
       >
         <div className="form-control">
