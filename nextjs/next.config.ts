@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
       {
         source: "/api/:path*",
         destination:
-          process.env.NODE_ENV === "development"
+          process.env.VERCEL_ENV !== "production"
             ? "http://127.0.0.1:8000/:path*"
             : "https://svirs.pythonanywhere.com/:path*",
       },
