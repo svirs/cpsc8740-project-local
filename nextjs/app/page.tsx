@@ -103,6 +103,7 @@ export default function Home() {
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         {movies.length > 0 && (
           <div className="flex justify-center gap-4 flex-col">
+            <h2 className="text-2xl font-bold">Movie Reccomendations</h2>
             <MovieRater
               movies={movies}
               currentMovieIndex={currentMovieIndex}
@@ -111,6 +112,11 @@ export default function Home() {
               setRating={setRating}
               handleRating={handleRating}
             />
+            <p>
+              Scroll through these reccomendations and give them ratings as you
+              see fit! Log back in later for more reccomendations based on your
+              ratings!
+            </p>
           </div>
         )}
       </main>
