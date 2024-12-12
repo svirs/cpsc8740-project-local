@@ -100,10 +100,14 @@ export default function Home() {
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+      <header>
+        <h2 className="text-2xl text-center font-bold">
+          Movie Reccomendations
+        </h2>
+      </header>
       <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
         {movies.length > 0 && (
           <div className="flex justify-center gap-4 flex-col">
-            <h2 className="text-2xl font-bold">Movie Reccomendations</h2>
             <MovieRater
               movies={movies}
               currentMovieIndex={currentMovieIndex}
@@ -112,18 +116,14 @@ export default function Home() {
               setRating={setRating}
               handleRating={handleRating}
             />
-            <p>
-              Scroll through these reccomendations and give them ratings as you
-              see fit! Log back in later for more reccomendations based on your
-              ratings!
-            </p>
           </div>
         )}
       </main>
       <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        {/*
-          todo footer
-        */}
+        <p className="text-center">
+          Scroll through these reccomendations and give them ratings as you see
+          fit! Log back in later for more reccomendations based on your ratings!
+        </p>
       </footer>
     </div>
   );
